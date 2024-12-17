@@ -3,146 +3,106 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Book Ambulance</title>
+    <title>URL Checker</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            padding: 20px;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
             max-width: 600px;
-            margin: auto;
-            border-radius: 8px;
-            background-color: white;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin: 20px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
-        h1 {
-            text-align: center;
-        }
-        label {
-            margin-top: 10px;
-            display: block;
-        }
-        input[type="text"], input[type="date"], input[type="time"] {
+        input[type="text"] {
             width: 100%;
             padding: 10px;
-            margin: 5px 0 20px;
+            margin-bottom: 10px;
             border: 1px solid #ccc;
             border-radius: 5px;
         }
         button {
-            padding: 10px 15px;
             background-color: #28a745;
             color: white;
             border: none;
+            padding: 10px 15px;
             border-radius: 5px;
             cursor: pointer;
-            width: 100%;
         }
-        button:hover {
-            background-color: #218838;
+        .highlights {
+            margin-top: 20px;
         }
-        #customDestinationDiv {
-            display: none;
+        .positive, .negative {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .positive {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .negative {
+            background-color: #f8d7da;
+            color: #721c24;
         }
     </style>
 </head>
 <body>
-    <h1>Book an Ambulance</h1>
-    <form id="ambulanceForm" onsubmit="return submitForm(event)">
-        <!-- Name field -->
-        <label for="name">Name:</label>
-        <input type="text" id="name" name="name" required>
-
-        <!-- Phone field -->
-        <label for="phone">Phone:</label>
-        <input type="text" id="phone" name="phone" required>
-
-        <!-- Location field -->
-        <label for="location">Your Location:</label>
-        <input type="text" id="location" name="location" required>
-        <button type="button" onclick="getLocation()">Use Current Location</button>
-
-        <!-- Destination select field -->
-        <label for="destination">Select Destination:</label>
-        <select id="destination" name="destination" required>
-            <option value="">Select</option>
-            <option value="Tata Main Hospital">Tata Main Hospital</option>
-            <option value="MGM Medical College and Hospital">MGM Medical College and Hospital</option>
-            <option value="Brahmananda Narayana Multispeciality Hospital">Brahmananda Narayana Multispeciality Hospital</option>
-            <option value="Mercy Hospital">Mercy Hospital</option>
-            <option value="Jamshedpur Eye Hospital">Jamshedpur Eye Hospital</option>
-            <option value="Gurunanak Hospital and Research Centre">Gurunanak Hospital and Research Centre</option>
-            <option value="Telco Hospital">Telco Hospital</option>
-            <option value="Kantilal Gandhi Eye Hospital">Kantilal Gandhi Eye Hospital</option>
-            <option value="Tinplate Hospital">Tinplate Hospital</option>
-            <option value="S.E. Railway Hospital">S.E. Railway Hospital</option>
-            <option value="custom">Enter Manually</option>
-        </select>
-        <div id="customDestinationDiv">
-            <input type="text" id="customDestination" name="customDestination" placeholder="Enter Destination Manually">
-        </div>
-
-        <!-- Date field -->
-        <label for="ambulanceDate">Date:</label>
-        <input type="date" id="ambulanceDate" name="ambulanceDate" required>
-
-        <!-- Time field -->
-        <label for="ambulanceTime">Time:</label>
-        <input type="time" id="ambulanceTime" name="ambulanceTime" required>
-
-        <!-- Submit button -->
-        <button type="submit">Book Ambulance</button>
-    </form>
-
+    <div class="container">
+        <h1>URL Checker</h1>
+        <input type="text" id="urlInput" placeholder="Enter a URL (e.g., https://example.com)">
+        <button onclick="checkURL()">Check URL</button>
+        <div class="highlights" id="result"></div>
+    </div>
     <script>
-        // Function to get user's current location
-        function getLocation() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(function(position) {
-                    document.getElementById('location').value = `Latitude: ${position.coords.latitude}, Longitude: ${position.coords.longitude}`;
-                }, function() {
-                    alert("Unable to retrieve your location.");
-                });
+        function checkURL() {
+            const url = document.getElementById("urlInput").value;
+            const resultDiv = document.getElementById("result");
+            resultDiv.innerHTML = "";
+
+            // Example pre-defined conditions for checking
+            const positives = [];
+            const negatives = [];
+
+            if (url.startsWith("https")) {
+                positives.push("The website has a valid SSL certificate.");
             } else {
-                alert("Geolocation is not supported by this browser.");
+                negatives.push("The website does not have a valid SSL certificate.");
             }
-        }
 
-        // Show custom destination input if "Enter Manually" is selected
-        document.getElementById('destination').addEventListener('change', function() {
-            if (this.value === 'custom') {
-                document.getElementById('customDestinationDiv').style.display = 'block';
+            if (url.includes("game")) {
+                negatives.push("It seems you can download games from this site, which may be risky.");
+            }
+
+            if (url.includes(".com")) {
+                positives.push("The website has a .com domain, which is commonly trusted.");
+            }
+
+            if (url.includes("oceansofgames")) {
+                negatives.push("We found mainly negative reviews about this site.");
             } else {
-                document.getElementById('customDestinationDiv').style.display = 'none';
+                positives.push("The site appears to have a neutral reputation.");
             }
-        });
 
-        // Handle form submission
-        function submitForm(event) {
-            event.preventDefault(); // Prevent default form submission
+            // Generate results
+            if (positives.length > 0) {
+                const positiveDiv = document.createElement("div");
+                positiveDiv.classList.add("positive");
+                positiveDiv.innerHTML = `<h3>Positive Highlights:</h3><ul>${positives.map(p => `<li>${p}</li>`).join("")}</ul>`;
+                resultDiv.appendChild(positiveDiv);
+            }
 
-            // Use FormData to gather form data
-            const formData = new FormData(document.getElementById('ambulanceForm'));
-
-            // Send data to Google Apps Script
-            fetch('https://script.google.com/macros/s/AKfycbzwaX2ez6-PzMNzHvX8YYESYvIRRuRlC-5uyh25WCxgla7oDGgf60B4zeIP1gPiIXU/exec', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => {
-                if (response.ok) {
-                    // Redirect to thank you page
-                    window.location.href = 'thank_you.html';
-                } else {
-                    alert("There was an error booking the ambulance.");
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert("There was an error booking the ambulance.");
-            });
-
-            return false; // Prevent default form submission
+            if (negatives.length > 0) {
+                const negativeDiv = document.createElement("div");
+                negativeDiv.classList.add("negative");
+                negativeDiv.innerHTML = `<h3>Negative Highlights:</h3><ul>${negatives.map(n => `<li>${n}</li>`).join("")}</ul>`;
+                resultDiv.appendChild(negativeDiv);
+            }
         }
     </script>
 </body>
