@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>URL Checker</title>
+    <title>URL Safety Checker</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -34,10 +34,10 @@
             border-radius: 5px;
             cursor: pointer;
         }
-        .highlights {
+        .results {
             margin-top: 20px;
         }
-        .positive, .negative {
+        .positive, .negative, .neutral {
             margin: 10px 0;
             padding: 10px;
             border-radius: 5px;
@@ -50,59 +50,92 @@
             background-color: #f8d7da;
             color: #721c24;
         }
+        .neutral {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>URL Checker</h1>
+        <h1>URL Safety Checker</h1>
         <input type="text" id="urlInput" placeholder="Enter a URL (e.g., https://example.com)">
-        <button onclick="checkURL()">Check URL</button>
-        <div class="highlights" id="result"></div>
+        <button onclick="analyzeURL()">Analyze</button>
+        <div class="results" id="results"></div>
     </div>
     <script>
-        function checkURL() {
-            const url = document.getElementById("urlInput").value;
-            const resultDiv = document.getElementById("result");
-            resultDiv.innerHTML = "";
+        function analyzeURL() {
+            const url = document.getElementById("urlInput").value.trim();
+            const resultsDiv = document.getElementById("results");
+            resultsDiv.innerHTML = "";
 
-            // Example pre-defined conditions for checking
             const positives = [];
             const negatives = [];
+            const recommendations = [];
 
-            if (url.startsWith("https")) {
-                positives.push("The website has a valid SSL certificate.");
+            // Basic checks for URL
+            if (url.startsWith("https://")) {
+                positives.push("The website has a valid SSL certificate (https).");
             } else {
-                negatives.push("The website does not have a valid SSL certificate.");
+                negatives.push("The website does not have a valid SSL certificate (https).");
             }
 
-            if (url.includes("game")) {
-                negatives.push("It seems you can download games from this site, which may be risky.");
+            if (url.includes(".com") || url.includes(".org") || url.includes(".edu")) {
+                positives.push("The domain appears to be common and trustworthy (.com, .org, .edu).");
+            } else if (url.includes(".ru") || url.includes(".cn")) {
+                negatives.push("The domain is from a region known for hosting suspicious websites.");
             }
 
-            if (url.includes(".com")) {
-                positives.push("The website has a .com domain, which is commonly trusted.");
+            if (url.includes("free") || url.includes("hack") || url.includes("crack") || url.includes("download")) {
+                negatives.push("The URL contains words like 'free', 'hack', or 'download', which might indicate risky content.");
             }
 
-            if (url.includes("oceansofgames")) {
-                negatives.push("We found mainly negative reviews about this site.");
+            if (url.split(".").length > 3) {
+                negatives.push("The URL uses multiple subdomains, which can sometimes be a sign of phishing.");
             } else {
-                positives.push("The site appears to have a neutral reputation.");
+                positives.push("The URL does not use excessive subdomains.");
             }
 
-            // Generate results
+            if (url.length > 50) {
+                negatives.push("The URL is unusually long, which may be a sign of suspicious activity.");
+            } else {
+                positives.push("The URL length is within a normal range.");
+            }
+
+            // Recommendations for user safety
+            recommendations.push(
+                "Avoid downloading anything from unknown or suspicious websites.",
+                "Do not provide personal information unless you trust the website.",
+                "If you suspect the website, close it immediately and run a malware scan."
+            );
+
+            // Safety Assessment
+            const isSafe = negatives.length === 0;
+
+            // Generate output
             if (positives.length > 0) {
                 const positiveDiv = document.createElement("div");
                 positiveDiv.classList.add("positive");
-                positiveDiv.innerHTML = `<h3>Positive Highlights:</h3><ul>${positives.map(p => `<li>${p}</li>`).join("")}</ul>`;
-                resultDiv.appendChild(positiveDiv);
+                positiveDiv.innerHTML = `<h3>Positive Aspects:</h3><ul>${positives.map(p => `<li>${p}</li>`).join("")}</ul>`;
+                resultsDiv.appendChild(positiveDiv);
             }
 
             if (negatives.length > 0) {
                 const negativeDiv = document.createElement("div");
                 negativeDiv.classList.add("negative");
-                negativeDiv.innerHTML = `<h3>Negative Highlights:</h3><ul>${negatives.map(n => `<li>${n}</li>`).join("")}</ul>`;
-                resultDiv.appendChild(negativeDiv);
+                negativeDiv.innerHTML = `<h3>Negative Aspects:</h3><ul>${negatives.map(n => `<li>${n}</li>`).join("")}</ul>`;
+                resultsDiv.appendChild(negativeDiv);
             }
+
+            const neutralDiv = document.createElement("div");
+            neutralDiv.classList.add("neutral");
+            neutralDiv.innerHTML = `<h3>Safety Verdict:</h3><p>The website is ${isSafe ? "<strong>safe</strong> to visit." : "<strong>not safe</strong> to visit. Please proceed with caution."}</p>`;
+            resultsDiv.appendChild(neutralDiv);
+
+            const recommendationsDiv = document.createElement("div");
+            recommendationsDiv.classList.add("neutral");
+            recommendationsDiv.innerHTML = `<h3>Recommendations:</h3><ul>${recommendations.map(r => `<li>${r}</li>`).join("")}</ul>`;
+            resultsDiv.appendChild(recommendationsDiv);
         }
     </script>
 </body>
